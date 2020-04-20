@@ -29,7 +29,7 @@ recaptacha_notification=DiscordNotification(os.getenv('DISCORD_HOOK_RECAPTACHA')
 
 recaptacha_solver=AntiRecaptcha(os.getenv('ANTI_RECAPTACHA_CLIENT'),os.getenv('RECAPTACHA_SITE_ID'),os.getenv('RECAPTACHA_SITE_LINK'))
 
-recaptacha_solver.set_discord_channel()
+recaptacha_solver.set_discord_channel(os.getenv('DISCORD_HOOK_RECAPTACHA'))
 
 logs_db=StoreCSVLogs('LOGS_CATEGORIES.csv')
 logs_db.loadLogs()
