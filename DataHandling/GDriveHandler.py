@@ -1,8 +1,7 @@
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
 import os 
-from dotenv import load_dotenv
-load_dotenv()
+
 class GDriveHandler:
     def __init__(self):
         self.gauth = GoogleAuth()
@@ -29,9 +28,4 @@ class GDriveHandler:
         return drive_file
 
 
-gdrive=GDriveHandler()
-result=gdrive.authenticate(os.getenv('GDRIVE_CRENTIAL_LOCATION'))
-gdrive.setGDriveFolderId(os.getenv('GDRIVE_FOLDER_ID'))
-
-print(result)
 

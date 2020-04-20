@@ -9,11 +9,10 @@ load_dotenv()
 db=MongoHandler(os.getenv('MONGO_DB_API'))
 count=1
 for category in db.getCategories():
+    print(category)
     products=json.loads('[]')
     for product in db.getProductsByCategory(category):
         products.append(product)
-        print(count)
-        count+=1
     with open('/JSON/'+str(category)+".json", "w",encoding='utf-8-sig') as outfile: 
         outfile.write(products)
 

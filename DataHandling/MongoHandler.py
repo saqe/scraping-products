@@ -18,6 +18,9 @@ class MongoHandler:
     def count_records(self):
         return self.products.count()
 
+    def getProductsByCategory(self, category_name):
+        return self.products.find({'Category':category_name})
+
     def getCountByCategory(self):
         return self.products.aggregate([{"$group" : {"_id":"$Category", "Record Count":{"$sum":1}}}])
 
@@ -25,7 +28,7 @@ class MongoHandler:
         return self.products.distinct("Category")
 
     def getCategoryValueCount(self,category):
-        return category+" : "+str(self.products.find({'Category':category}).count())
+        return category+" : "+self.getProductsByCategory(category).count()
         
     def encode_key(self,key):
         return key.replace("\\", "\\\\").replace("\$", "\\u0024").replace(".", "\\u002e")

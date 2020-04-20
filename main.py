@@ -60,7 +60,6 @@ post_request['content-type']='application/x-www-form-urlencoded'
 
 def is_it_solved(response):
   start=time.time()
-  recaptacha_notification.sendWarningMessage("Waiting for response from Idealo","Testing on Site")
   logger.info("Waiting for POST response from www.idealo.de")
   reponse=re.post('https://www.idealo.de',data={'g-recaptcha-response':response},headers=post_request)
   time_taken="\nTime taken : "+str((time.time()-start))
