@@ -105,8 +105,6 @@ def scrape_product_page(dataDict):
     dataDict[db.encode_key(key)]=value
   db.store_product(dataDict)
 
-def scrapeProductList(entries):
-
 def main():
   for CATEGORY_LINK in CATEGORIES:
     CATEGORY_ID=str(int(CATEGORY_LINK.split('/')[-1].split('.')[0]))
