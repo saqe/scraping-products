@@ -65,9 +65,7 @@ def is_it_solved(response):
   reponse=re.post('https://www.idealo.de',data={'g-recaptcha-response':response},headers=post_request)
   time_taken="\nTime taken : "+str((time.time()-start))
   logger.info("Response :"+str(reponse.status_code))
-  if reponse.status_code==200:
-    recaptacha_notification.sendSuccessMessage("Response : 200\nSounds Good! "+time_taken,"Pass")
-  else:
+  if reponse.status_code!=200:
     logger.info("Error with recaptacha")
     recaptacha_notification.sendErrorMessage("Response : "+str(reponse.status_code)+"\nSome Problem"+time_taken,"Failed")
     recaptacha_solver.incorrect()
@@ -155,6 +153,7 @@ def main():
       notification.sendErrorMessage("(Category ID change) Error with JSON category "+CATEGORY_LINK+" moving to next.","JSON Decode Error")
       logs_db.store_data(CATEGORY_ID)
       continue
+    
     logs_db.store_data(CATEGORY_ID)
     notification.sendSuccessMessage("Category : "+category_name+" #"+str(CATEGORY_ID)+" is completed\n"+db.getCategoryValueCount(category_name))
 
