@@ -12,6 +12,10 @@ from datetime import datetime
 from DataHandling.MongoHandler import MongoHandler
 from dotenv import load_dotenv
 import os
+import logging
+
+logging.basicConfig(filename='scraping.log', filemode='a', format='%(asctime)s %(levelname)-8s %(message)s',level=logging.INFO)
+logger = logging.getLogger()
 
 #Load ENVIRONMENT VARIABLES
 load_dotenv()
@@ -56,12 +60,14 @@ post_request['content-type']='application/x-www-form-urlencoded'
 def is_it_solved(response):
   start=time.time()
   recaptacha_notification.sendWarningMessage("Waiting for response from Idealo","Testing on Site")
-  print('Waiting from POST https://www.idealo.de for response')
+  logger.info("Waiting for POST response from www.idealo.de")
   reponse=re.post('https://www.idealo.de',data={'g-recaptcha-response':response},headers=post_request)
   time_taken="\nTime taken : "+str((time.time()-start))
+  logger.info("Response :"+str(reponse.status_code))
   if reponse.status_code==200:
     recaptacha_notification.sendSuccessMessage("Response : 200\nSounds Good! "+time_taken,"Pass")
   else:
+    logger.info("Error with recaptacha")
     recaptacha_notification.sendErrorMessage("Response : "+str(reponse.status_code)+"\nSome Problem"+time_taken,"Failed")
     recaptacha_solver.incorrect()
 
@@ -88,7 +94,6 @@ def scrape_product_page(dataDict):
       recaptacha_notification.sendInfoMessage("Recaptacha Solved by vendor"+time_taken)
       is_it_solved(response)
       continue
-
     break
 
   print(dataDict['Product Title'])
@@ -111,11 +116,11 @@ def main():
     CATEGORY_JSON_API=os.getenv('CATEGORY_JSON_LINK').format(category_id=CATEGORY_ID)
     while True:
       json_page=re.get(CATEGORY_JSON_API)
+      logger.info("Link "+str(CATEGORY_JSON_API)+"\n Status code is :"+str(json_page.status_code))
       if json_page.status_code!=200:notification.sendErrorMessage("ERROR with category: "+CATEGORY_ID+"\nResoponse code : "+str(json_page.status_code),'Invalid Response Code')
       #Hande JSON Exception here
-      try:
-        JSON_RESULT=json_page.json()
-      except 
+      JSON_RESULT=json_page.json()
+      
 
       for product in JSON_RESULT['categoryJsonResults']["entries"]:
         dataDict={}
