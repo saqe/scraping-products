@@ -112,39 +112,48 @@ def main():
     notification.sendInfoMessage("Started category code: "+CATEGORY_ID+"\n"+CATEGORY_LINK)
     # print("Category: "+CATEGORY_ID)
     CATEGORY_JSON_API=os.getenv('CATEGORY_JSON_LINK').format(category_id=CATEGORY_ID)
-    while True:
-      json_page=re.get(CATEGORY_JSON_API)
-      logger.info("Link "+str(CATEGORY_JSON_API)+"\n Status code is :"+str(json_page.status_code))
-      if json_page.status_code!=200:notification.sendErrorMessage("ERROR with category: "+CATEGORY_ID+"\nResoponse code : "+str(json_page.status_code),'Invalid Response Code')
-      #Hande JSON Exception here
-      JSON_RESULT=json_page.json()
-      
+    try:
+      while True:
+        json_page=re.get(CATEGORY_JSON_API)
+        logger.info("Link "+str(CATEGORY_JSON_API)+"\n Status code is :"+str(json_page.status_code))
+        if json_page.status_code!=200:
+          logger.error("Error with category id:"+CATEGORY_ID)
+          logger.error("Category link:"+CATEGORY_LINK+" might having some problem with")
 
-      for product in JSON_RESULT['categoryJsonResults']["entries"]:
-        dataDict={}
-        try:
-          if 'id' in product['link']['productLink']: dataDict['_id']=product['link']['productLink']['id']
-          else: dataDict['_id']=product['link']['productLink']['Id']
-        except TypeError:
-          notification.sendErrorMessage("TypeError with product id of : "+CATEGORY_JSON_API,"Error")
-          print("Error with : "+str(product))
-          continue
-        # if Product is already scraped   
-        if db.if_product_exists(dataDict['_id']):continue
+          notification.sendErrorMessage("ERROR with category: "+CATEGORY_ID+"\nResoponse code : "+str(json_page.status_code),'Invalid Response Code')
+        #Hande JSON Exception here
+        JSON_RESULT=json_page.json()
         
-        product_link=product['link']['productLink']['href']
-        if not product_link.startswith('http'):
-          product_link=MAIN_URL+product_link
-        dataDict['Product Link']=product_link
-        dataDict['Product Type']=product['type']
-        dataDict['Product Title']=product['title'].strip()
-        dataDict['Category']=product['categoryName']
-        category_name=product['categoryName']
-        scrape_product_page(dataDict)
 
-      pagination=JSON_RESULT["categoryPagination"]
-      if pagination['nextPageAjaxLink'] is None:break
-      CATEGORY_JSON_API=pagination['nextPageAjaxLink']
+        for product in JSON_RESULT['categoryJsonResults']["entries"]:
+          dataDict={}
+          try:
+            if 'id' in product['link']['productLink']: dataDict['_id']=product['link']['productLink']['id']
+            else: dataDict['_id']=product['link']['productLink']['Id']
+          except TypeError:
+            notification.sendErrorMessage("TypeError with product id of : "+CATEGORY_JSON_API,"Error")
+            print("Error with : "+str(product))
+            continue
+          # if Product is already scraped   
+          if db.if_product_exists(dataDict['_id']):continue
+          
+          product_link=product['link']['productLink']['href']
+          if not product_link.startswith('http'):
+            product_link=MAIN_URL+product_link
+          dataDict['Product Link']=product_link
+          dataDict['Product Type']=product['type']
+          dataDict['Product Title']=product['title'].strip()
+          dataDict['Category']=product['categoryName']
+          category_name=product['categoryName']
+          scrape_product_page(dataDict)
+
+        pagination=JSON_RESULT["categoryPagination"]
+        if pagination['nextPageAjaxLink'] is None:break
+        CATEGORY_JSON_API=pagination['nextPageAjaxLink']
+    except json.decoder.JSONDecodeError:
+      notification.sendErrorMessage("(Category ID change) Error with JSON category "+CATEGORY_LINK+" moving to next.","JSON Decode Error")
+      logs_db.store_data(CATEGORY_ID)
+      continue
     logs_db.store_data(CATEGORY_ID)
     notification.sendSuccessMessage("Category : "+category_name+" #"+str(CATEGORY_ID)+" is completed\n"+db.getCategoryValueCount(category_name))
 
