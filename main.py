@@ -13,6 +13,7 @@ from DataHandling.MongoHandler import MongoHandler
 from dotenv import load_dotenv
 import os
 import logging
+from simplejson.scanner import JSONDecodeError as JSONDecodeError
 
 logging.basicConfig(filename='scraping.log', filemode='a', format='%(asctime)s %(levelname)-8s %(message)s',level=logging.INFO)
 logger = logging.getLogger()
@@ -121,9 +122,9 @@ def main():
           logger.error("Category link:"+CATEGORY_LINK+" might having some problem with")
 
           notification.sendErrorMessage("ERROR with category: "+CATEGORY_ID+"\nResoponse code : "+str(json_page.status_code),'Invalid Response Code')
+        
         #Hande JSON Exception here
         JSON_RESULT=json_page.json()
-        
 
         for product in JSON_RESULT['categoryJsonResults']["entries"]:
           dataDict={}
@@ -150,7 +151,7 @@ def main():
         pagination=JSON_RESULT["categoryPagination"]
         if pagination['nextPageAjaxLink'] is None:break
         CATEGORY_JSON_API=pagination['nextPageAjaxLink']
-    except json.decoder.JSONDecodeError:
+    except JSONDecodeError:
       notification.sendErrorMessage("(Category ID change) Error with JSON category "+CATEGORY_LINK+" moving to next.","JSON Decode Error")
       logs_db.store_data(CATEGORY_ID)
       continue
