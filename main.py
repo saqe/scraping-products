@@ -58,7 +58,7 @@ def is_it_solved(response):
   recaptacha_notification.sendWarningMessage("Waiting for response from Idealo","Testing on Site")
   print('Waiting from POST https://www.idealo.de for response')
   reponse=re.post('https://www.idealo.de',data={'g-recaptcha-response':response},headers=post_request)
-  time_taken="\nTime taken : "+str((time.time()-start)/60)
+  time_taken="\nTime taken : "+str((time.time()-start))
   if reponse.status_code==200:
     recaptacha_notification.sendSuccessMessage("Response : 200\nSounds Good! "+time_taken,"Pass")
   else:
@@ -84,10 +84,11 @@ def scrape_product_page(dataDict):
       recaptacha_notification.sendInfoMessage("Recaptacha Shown up, waiting to be solved\nProducts : "+str(db.count_records()),"Recaptcha Found")
       start=time.time()
       response=recaptacha_solver.getResponse()
-      time_taken="\nTime taken : "+str((time.time()-start)/60)
+      time_taken="\nTime taken : "+str((time.time()-start))
       recaptacha_notification.sendInfoMessage("Recaptacha Solved by vendor"+time_taken)
       is_it_solved(response)
       continue
+
     break
 
   print(dataDict['Product Title'])
@@ -99,6 +100,7 @@ def scrape_product_page(dataDict):
     dataDict[db.encode_key(key)]=value
   db.store_product(dataDict)
 
+def scrapeProductList(entries):
 
 def main():
   for CATEGORY_LINK in CATEGORIES:
@@ -111,7 +113,9 @@ def main():
       json_page=re.get(CATEGORY_JSON_API)
       if json_page.status_code!=200:notification.sendErrorMessage("ERROR with category: "+CATEGORY_ID+"\nResoponse code : "+str(json_page.status_code),'Invalid Response Code')
       #Hande JSON Exception here
-      JSON_RESULT=json_page.json()
+      try:
+        JSON_RESULT=json_page.json()
+      except 
 
       for product in JSON_RESULT['categoryJsonResults']["entries"]:
         dataDict={}
@@ -134,6 +138,7 @@ def main():
         dataDict['Category']=product['categoryName']
         category_name=product['categoryName']
         scrape_product_page(dataDict)
+
       pagination=JSON_RESULT["categoryPagination"]
       if pagination['nextPageAjaxLink'] is None:break
       CATEGORY_JSON_API=pagination['nextPageAjaxLink']

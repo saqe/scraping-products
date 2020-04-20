@@ -1,8 +1,8 @@
 from DataHandling.MongoHandler import MongoHandler
 from _discord_.DiscordNotification import DiscordNotification
 from dotenv import load_dotenv
-
 from util.FileFlagHandler import FileFlagHandler
+
 import os
 
 load_dotenv()
