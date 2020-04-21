@@ -122,7 +122,7 @@ def main():
         
         #Hande JSON Exception here
         JSON_RESULT=json_page.json()
-
+        category_name=''
         for product in JSON_RESULT['categoryJsonResults']["entries"]:
           dataDict={}
           try:
