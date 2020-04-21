@@ -154,7 +154,7 @@ def main():
       continue
     
     logs_db.store_data(CATEGORY_ID)
-    notification.sendSuccessMessage("Category : "+category_name+" #"+str(CATEGORY_ID)+" is completed\n"+db.getCategoryValueCount(category_name))
+    notification.sendSuccessMessage("Category : "+str(category_name)+" #"+str(CATEGORY_ID)+" is completed\n Total category records: "+str(db.getCategoryValueCount(category_name)))
 
 if __name__ == "__main__":
     try:main()
