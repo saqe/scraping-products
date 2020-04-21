@@ -146,6 +146,9 @@ def main():
           scrape_product_page(dataDict)
 
         pagination=JSON_RESULT["categoryPagination"]
+        if pagination is None:
+          notification.sendErrorMessage("Pagination is None,\nCategory API Link:"+str(CATEGORY_JSON_API)+"\n Category Link "+str(CATEGORY_LINK),"Pagination")  
+          break
         if pagination['nextPageAjaxLink'] is None:break
         CATEGORY_JSON_API=pagination['nextPageAjaxLink']
     except JSONDecodeError:
@@ -158,5 +161,6 @@ def main():
 
 if __name__ == "__main__":
     try:main()
-    except Exception as p:notification.sendErrorMessage(str(traceback.format_exc()),str(type(p)))
+    except Exception as p:
+      notification.sendErrorMessage(str(traceback.format_exc()),type(p).__name__)
 
