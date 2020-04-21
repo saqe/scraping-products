@@ -50,7 +50,7 @@ requestHeader={
   'pragma': 'no-cache',
   'upgrade-insecure-requests': '1',
   'cookie':os.getenv('COOKIES'),
-  'user-agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.163 Safari/537.36',
+  'user-agent': os.getenv('USER_AGENT_CHROME')
 }
 
 
