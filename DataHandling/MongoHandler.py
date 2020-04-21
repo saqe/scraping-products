@@ -28,7 +28,7 @@ class MongoHandler:
         return self.products.distinct("Category")
 
     def getCategoryValueCount(self,category):
-        return category+" : "+self.getProductsByCategory(category).count()
+        return category+" : "+str(self.getProductsByCategory(category).count())
         
     def encode_key(self,key):
         return key.replace("\\", "\\\\").replace("\$", "\\u0024").replace(".", "\\u002e")
