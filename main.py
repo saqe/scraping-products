@@ -128,9 +128,9 @@ def main():
           try:
             if 'id' in product['link']['productLink']: dataDict['_id']=product['link']['productLink']['id']
             else: dataDict['_id']=product['link']['productLink']['Id']
-          except TypeError:
-            notification.sendErrorMessage("TypeError with product id of : "+CATEGORY_JSON_API,"Error")
-            print("Error with : "+str(product))
+          except TypeError as te:
+            # notification.sendErrorMessage("TypeError with product id of : "+CATEGORY_JSON_API,"Error")
+            logger.exception("Id is replaced with ebay or something like that")
             continue
           # if Product is already scraped   
           if db.if_product_exists(dataDict['_id']):continue
