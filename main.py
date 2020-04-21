@@ -14,7 +14,7 @@ from dotenv import load_dotenv
 import os
 import logging
 from simplejson.scanner import JSONDecodeError as JSONDecodeError
-
+import traceback
 logging.basicConfig(filename='scraping.log', filemode='a', format='%(asctime)s %(levelname)-8s %(message)s',level=logging.INFO)
 logger = logging.getLogger()
 
@@ -89,7 +89,7 @@ def scrape_product_page(dataDict):
       start=time.time()
       response=recaptacha_solver.getResponse()
       time_taken="\nTime taken : "+str((time.time()-start))
-      recaptacha_notification.sendInfoMessage("Recaptacha Solved by vendor"+time_taken)
+      recaptacha_notification.sendSuccessMessage("Recaptacha Solved by vendor"+time_taken)
       is_it_solved(response)
       continue
     break
@@ -158,5 +158,5 @@ def main():
 
 if __name__ == "__main__":
     try:main()
-    except Exception as p:notification.sendInfoMessage(str(p),"MAIN ERROR")
+    except Exception as p:notification.sendErrorMessage(str(traceback.format_exc()),str(type(p)))
 
