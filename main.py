@@ -122,12 +122,12 @@ def main():
         
         #Hande JSON Exception here
         JSON_RESULT=json_page.json()
-        category_name=''
         for product in JSON_RESULT['categoryJsonResults']["entries"]:
           dataDict={}
           try:
             if 'id' in product['link']['productLink']: dataDict['_id']=product['link']['productLink']['id']
             else: dataDict['_id']=product['link']['productLink']['Id']
+            category_name=product['categoryName']
           except TypeError as te:
             # notification.sendErrorMessage("TypeError with product id of : "+CATEGORY_JSON_API,"Error")
             logger.exception("Id is replaced with ebay or something like that")
@@ -142,7 +142,7 @@ def main():
           dataDict['Product Type']=product['type']
           dataDict['Product Title']=product['title'].strip()
           dataDict['Category']=product['categoryName']
-          category_name=product['categoryName']
+          
           scrape_product_page(dataDict)
 
         pagination=JSON_RESULT["categoryPagination"]
@@ -157,7 +157,11 @@ def main():
       continue
     
     logs_db.store_data(CATEGORY_ID)
-    notification.sendSuccessMessage("Category : "+str(category_name)+" #"+str(CATEGORY_ID)+" is completed\n Total category records: "+str(db.getCategoryValueCount(category_name)))
+    try:
+      notification.sendSuccessMessage("Category : "+str(category_name)+" #"+str(CATEGORY_ID)+" is completed\n"+str(db.getCategoryValueCount(category_name)))
+    except UnboundLocalError:
+      notification.sendSuccessMessage("Current category is completed")
+    
 
 if __name__ == "__main__":
     try:main()
