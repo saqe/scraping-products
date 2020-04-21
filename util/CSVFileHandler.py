@@ -43,6 +43,5 @@ class CSVFileOutputHandler:
             if removeExtra:
                 extra_header=set(rowDict.keys())-set(self.CSV_FILE_HEADER)
                 if extra_header != set() and showExtraRows: print(extra_header)
-                for e in extra_header:
-                    del rowDict[e]
+                for e in extra_header:  del rowDict[e]
             filewriter.writerow(rowDict)

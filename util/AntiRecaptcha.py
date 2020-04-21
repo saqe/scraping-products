@@ -15,15 +15,16 @@ class AntiRecaptcha:
         while True:
             try:   
                 self.job = self.client.createTask(self.task)
-                break
+                self.job.join()
+                response=self.job.get_solution_response()
+                break        
             except AnticaptchaException as exception:
                 notify.sendErrorMessage(str(exception),"AnticaptchaException")
                 self.incorrect()
-                time.sleep(20)
+                time.sleep(1)
                 notify.sendInfoMessage("Trying again with by creating a new , ")
         
-        self.job.join()
-        return self.job.get_solution_response()
+        return response
 
     def incorrect(self):
         self.job.report_incorrect_recaptcha()
