@@ -115,7 +115,7 @@ def main():
     if logs_db.ifDataInLogs(CATEGORY_ID):continue
     notification.sendInfoMessage("Started category code: "+CATEGORY_ID+"\n"+CATEGORY_LINK)
     # print("Category: "+CATEGORY_ID)
-    CATEGORY_JSON_API=os.getenv('n').format(category_id=CATEGORY_ID)
+    CATEGORY_JSON_API=os.getenv('CATEGORY_JSON_LINK').format(category_id=CATEGORY_ID)
     try:
       while True:
         json_page=re.get(CATEGORY_JSON_API)
