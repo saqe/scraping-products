@@ -24,8 +24,16 @@ class DiscordNotification:
     def sendSuccessMessage(self,desc,title="💯 SUCCESS 🤩"):
         self.sendMessage(title,desc,self.COLOR_Success)
 
+    def sendEmbeddedMessage(self,embedded_message):
+        webhook=DiscordWebhook(url=self.hookLink)
+        webhook.add_embed(embedded_message)
+        webhook.execute()
+
+    def getEmbed(self):
+        return DiscordEmbed()
+
     def sendMessage(self,msg_title,desc,side_color):
         webhook=DiscordWebhook(url=self.hookLink)
         embed = DiscordEmbed(title=msg_title, description=datetime.now().strftime("%I:%M %p\n")+desc, color=side_color)
         webhook.add_embed(embed)
-        response = webhook.execute()
+        webhook.execute()
