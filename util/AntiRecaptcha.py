@@ -19,10 +19,10 @@ class AntiRecaptcha:
                 response=self.job.get_solution_response()
                 break        
             except AnticaptchaException as exception:
-                notify.sendErrorMessage(str(exception),"AnticaptchaException")
+                self.notify.sendErrorMessage(str(exception),"AnticaptchaException")
                 self.incorrect()
                 time.sleep(1)
-                notify.sendInfoMessage("Trying again with by creating a new , ")
+                self.notify.sendInfoMessage("Trying again with by creating a new , ")
         
         return response
 
