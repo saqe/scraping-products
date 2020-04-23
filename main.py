@@ -13,8 +13,8 @@ from DataHandling.MongoHandler import MongoHandler
 from dotenv import load_dotenv
 import os
 import logging
-from simplejson.scanner import JSONDecodeError as JSONDecodeError
 import traceback
+from json import JSONDecodeError
 logging.basicConfig(filename='scraping.log', filemode='a', format='%(asctime)s %(levelname)-8s %(message)s',level=logging.INFO)
 logger = logging.getLogger()
 
@@ -24,6 +24,7 @@ load_dotenv()
 re=re.Session()
 
 db=MongoHandler(os.getenv('MONGO_DB_API'))
+db_secondary=MongoHandler(os.getenv('MONGO_DB_SECONDARY_API'))
 
 read_file=ReadCSVList("Categories.csv")
 CATEGORIES=read_file.readColoumnFromFile(skipHeader=True)
@@ -85,7 +86,8 @@ def scrape_product_page(dataDict):
     pageParser=BeautifulSoup(page.content,'html.parser')
     if pageParser.find('body',id='captcha') is not None:
       print("Captcha being solved")
-      recaptacha_notification.sendInfoMessage("Recaptacha Shown up, waiting to be solved\nProducts : "+str(db.count_records()),"Recaptcha Found")
+      recaptacha_notification.sendInfoMessage("Recaptacha Shown up, waiting to be solved\nProducts : "+str(db.count_records()+db_secondary.count_records()),"Recaptcha Found")
+
       start=time.time()
       response=recaptacha_solver.getResponse()
       time_taken="\nTime taken : "+str((time.time()-start))
@@ -100,8 +102,12 @@ def scrape_product_page(dataDict):
     value=row.find('span',class_='datasheet-listItemValue').getText().strip()
 
     # MongoDB don't accept . $ and \i in key values
-    dataDict[db.encode_key(key)]=value
-  db.store_product(dataDict)
+    dataDict[MongoHandler.encode_key(key)]=value
+
+  if db.isContainCategory(dataDict['Category']):
+    db.store_product(dataDict)
+  else:
+    db_secondary.store_product(dataDict)
 
 def main():
   for CATEGORY_LINK in CATEGORIES:
@@ -117,8 +123,9 @@ def main():
         if json_page.status_code!=200:
           logger.error("Error with category id:"+CATEGORY_ID)
           logger.error("Category link:"+CATEGORY_LINK+" might having some problem with")
-
           notification.sendErrorMessage("ERROR with category: "+CATEGORY_ID+"\nResoponse code : "+str(json_page.status_code),'Invalid Response Code')
+
+          #Do continue here (Might be,before JSON Exception)
         
         #Hande JSON Exception here
         JSON_RESULT=json_page.json()
@@ -128,13 +135,14 @@ def main():
             if 'id' in product['link']['productLink']: dataDict['_id']=product['link']['productLink']['id']
             else: dataDict['_id']=product['link']['productLink']['Id']
             category_name=product['categoryName']
-          except TypeError as te:
+          except TypeError:
             # notification.sendErrorMessage("TypeError with product id of : "+CATEGORY_JSON_API,"Error")
             logger.exception("Id is replaced with ebay or something like that")
             continue
           # if Product is already scraped   
           if db.if_product_exists(dataDict['_id']):continue
-          
+          if db_secondary.if_product_exists(dataDict['_id']):continue
+
           product_link=product['link']['productLink']['href']
           if not product_link.startswith('http'):
             product_link=MAIN_URL+product_link
@@ -158,7 +166,12 @@ def main():
     
     logs_db.store_data(CATEGORY_ID)
     try:
-      notification.sendSuccessMessage("Category : "+str(category_name)+" #"+str(CATEGORY_ID)+" is completed\n"+str(db.getCategoryValueCount(category_name)))
+      if db.isContainCategory(category_name):
+        notification.sendSuccessMessage("Category : "+str(category_name)+" #"+str(CATEGORY_ID)+" is completed\n"+str(db.getCategoryValueCount(category_name)),"Database Main")
+      else:notification.sendSuccessMessage("Category : "+str(category_name)+" #"+str(CATEGORY_ID)+" is completed\n"+str(db_secondary.getCategoryValueCount(category_name)),"Database Secondary")
+
+      
+      
     except UnboundLocalError:
       notification.sendSuccessMessage("Current category is completed")
     

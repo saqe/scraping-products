@@ -24,14 +24,18 @@ class MongoHandler:
     def getCountByCategory(self):
         return self.products.aggregate([{"$group" : {"_id":"$Category", "Record Count":{"$sum":1}}}])
 
+    def isContainCategory(self, category_name):
+        return True if self.getProductsByCategory(category_name).count() > 0 else False
+
     def getCategories(self):
         return self.products.distinct("Category")
 
     def getCategoryValueCount(self,category):
         return category+" : "+str(self.getProductsByCategory(category).count())
-        
-    def encode_key(self,key):
+    
+    @staticmethod
+    def encode_key(key):
         return key.replace("\\", "\\\\").replace("\$", "\\u0024").replace(".", "\\u002e")
-
-    def decode_key(self,key):
+    @staticmethod
+    def decode_key(key):
         return key.replace("\\u002e", ".").replace("\\u0024", "\$").replace("\\\\", "\\")
