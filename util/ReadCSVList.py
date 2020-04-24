@@ -25,6 +25,7 @@ class ReadCSVList:
         except FileNotFoundError:
             raise FileNotFoundError("[!] "+self.CSV_FILE_NAME+" Not found ! ")
         self.FLAG_READ_COMPLETE=True
+        
 
     def getFileToList(self)->list:
         if not self.FLAG_READ_COMPLETE:

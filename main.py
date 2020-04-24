@@ -14,7 +14,7 @@ from dotenv import load_dotenv
 import os
 import logging
 import traceback
-from json import JSONDecodeError
+from simplejson.scanner import JSONDecodeError as JSONDecodeError
 logging.basicConfig(filename='scraping.log', filemode='a', format='%(asctime)s %(levelname)-8s %(message)s',level=logging.INFO)
 logger = logging.getLogger()
 
@@ -27,7 +27,7 @@ db=MongoHandler(os.getenv('MONGO_DB_API'))
 db_secondary=MongoHandler(os.getenv('MONGO_DB_SECONDARY_API'))
 
 read_file=ReadCSVList("Categories.csv")
-CATEGORIES=read_file.readColoumnFromFile(skipHeader=True)
+read_file.readColoumnFromFile(skipHeader=True)
 CATEGORIES=read_file.getFileToList()[::-1]
 
 notification=DiscordNotification(os.getenv('DISCORD_HOOK_PROGRESS_UPDATE'))
@@ -124,7 +124,6 @@ def main():
           logger.error("Error with category id:"+CATEGORY_ID)
           logger.error("Category link:"+CATEGORY_LINK+" might having some problem with")
           notification.sendErrorMessage("ERROR with category: "+CATEGORY_ID+"\nResoponse code : "+str(json_page.status_code),'Invalid Response Code')
-
           #Do continue here (Might be,before JSON Exception)
         
         #Hande JSON Exception here
