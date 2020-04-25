@@ -6,7 +6,8 @@ class MongoHandler:
         super().__init__()
         self.client = pymongo.MongoClient(MONGO_CLIENT_URI)
         self.products=self.client['Idealo'].Products
-
+        self.categories_list=self.getCategories()
+        
     def store_product(self,product):
         product['Creation dateTime']=datetime.now()
         self.products.insert_one(product)
@@ -25,7 +26,7 @@ class MongoHandler:
         return self.products.aggregate([{"$group" : {"_id":"$Category", "Record Count":{"$sum":1}}}])
 
     def isContainCategory(self, category_name):
-        return True if self.getProductsByCategory(category_name).count() > 0 else False
+        return True if category_name in self.categories_list else False
 
     def getCategories(self):
         return self.products.distinct("Category")

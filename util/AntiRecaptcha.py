@@ -23,7 +23,7 @@ class AntiRecaptcha:
                 self.incorrect()
                 time.sleep(1)
                 self.notify.sendInfoMessage("Trying again with by creating a new , ")
-        
+                continue
         return response
 
     def incorrect(self):

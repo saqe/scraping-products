@@ -168,8 +168,6 @@ def main():
       if db.isContainCategory(category_name):
         notification.sendSuccessMessage("Category : "+str(category_name)+" #"+str(CATEGORY_ID)+" is completed\n"+str(db.getCategoryValueCount(category_name)),"Database Main")
       else:notification.sendSuccessMessage("Category : "+str(category_name)+" #"+str(CATEGORY_ID)+" is completed\n"+str(db_secondary.getCategoryValueCount(category_name)),"Database Secondary")
-
-      
       
     except UnboundLocalError:
       notification.sendSuccessMessage("Current category is completed")
